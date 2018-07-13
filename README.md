@@ -28,13 +28,8 @@ let client = new OrchestratorApiClient(
 (...)
 client.authenticate(...tenant).then((token) => {
   client.createUser(user)
-    .then((r) => {
-      console.log(tenant[0] + " : " + user.UserName+" OK")
-    })
-    .catch((err) => {
-      console.log(err)
-     })
-  })
+    .then(r => console.log(tenant[0] + " : " + user.UserName+" OK"))
+    .catch(err => console.log(err))
 }).catch( err => console.log(err) )
 
 
