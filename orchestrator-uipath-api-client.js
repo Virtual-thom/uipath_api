@@ -106,6 +106,9 @@ module.exports = class OrchestratorApiClient {
     createUser(settings) {
         return this._request('POST', '/odata/Users', settings)
     }
+    getUsers() {
+        return this._request('GET', '/odata/Users')
+    }
 
     getEnvironment(name){
         return this._request('GET', "/odata/Environments?$filter=Name eq '"+name+"'")
