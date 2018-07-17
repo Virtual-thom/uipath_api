@@ -1,5 +1,7 @@
 ﻿# uipath orchestrator API
  
+ En attendant que [l'API officielle](https://github.com/UiPath/orchestrator-nodejs) réponde à mes besoins, j'ai repris un bout de code d'un collègue afin de l'exploiter dans un script nodejs d'initialisation des Tenants.
+ 
  Exemple avec node :
  
  ```js
