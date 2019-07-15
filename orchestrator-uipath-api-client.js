@@ -30,13 +30,13 @@ module.exports = class OrchestratorApiClient {
 
     async authenticate(tenant, user, password) {
         // https://orchestrator.uipath.com/v2017.1/reference#account_authenticate_1-1
+        // https://orchestrator.uipath.com/v2018.4/reference#authenticating
 
         var data = {
             "TenancyName": tenant,
             "UsernameOrEmailAddress": user,
             "Password": password
         };
-        
         try {
             this.token = (await this._request('POST', '/api/Account/Authenticate', data)).result;
         } catch (e) {
@@ -103,6 +103,25 @@ module.exports = class OrchestratorApiClient {
         return this._request('POST', '/odata/Roles', settings)
     }
 
+    updateRole(settings) {
+        return this._request('GET', '/odata/Roles?$filter=Name eq '+"'"+settings.Name+"'", {})
+            .then(Roles => {
+                settings.Id = Roles.value[0].Id
+                return this._request('PUT', '/odata/Roles('+settings.Id+')', settings)
+            })
+    }
+
+    deleteUsers(settings) {
+      return this._request('GET', '/odata/Users?$filter=UserName eq '+"'"+settings.UserName+"'", {})
+        .then(Users => {
+            if(Users.value && Users.value.length > 0){
+              settings.Id = Users.value[0].Id
+              return this._request('DELETE', '/odata/Users('+settings.Id+')', settings)
+            }
+            return Promise.reject(new Error(JSON.stringify(settings, Users)))
+        })
+    }
+
     createUser(settings) {
         return this._request('POST', '/odata/Users', settings)
     }
@@ -125,10 +144,17 @@ module.exports = class OrchestratorApiClient {
     getRobot(name){
         return this._request('GET', "/odata/Robots?$filter=Name eq '"+name+"'")
     }
+
+    getRobots(){
+        return this._request('GET', "/odata/Robots")
+    }
     
     createRobot(settings) {
-        // On génère automatiquement une clé uuid basé sur le timestamp (v1)
-        settings["LicenseKey"] = uuidv1()
+        // On génère automatiquement une clé uuid basée sur le timestamp (v1)          uuidv1()
+        // Changement de politique, la clé uuid est basée sur le nom de machine
+        var machine = settings["MachineName"];
+        var machineHex = machine.toUpperCase().split("").map((c) => c.charCodeAt(0).toString(16)).join("");
+        settings["LicenseKey"] = (machineHex + "000000000000000000000000000000000000").replace(/^(.{8})(.{4})(.{4})(.{4})(.{12}).*$/,"$1-$2-$3-$4-$5")
         return this._request('POST', '/odata/Robots', settings)
     }
     
